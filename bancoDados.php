@@ -1,5 +1,5 @@
 <?php
-// SÉRGIO
+// SÉRGIO GITHUB ENOIS
 session_start();
 
 class Conexao {
