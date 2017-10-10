@@ -172,13 +172,13 @@ class Conexao {
         //var_dump($nome,$prontuario,$turma,$tipo, $grupos);
         $db=$pdo;
         $db->beginTransaction();
-        $sql = $db->exec("update usuario set USUA_NOME='" . $nome . "', USUA_TURMA='" . $turma . "', USUA_TIPO='".$tipo."', USUA_SENHA='".$senhamd5."' where USUA_PRONT='" . $prontuario . "'");
+        $sql = $db->exec("update usuario set USUA_NOME='" . $nome . "', USUA_TURMA='" . $turma . "', USUA_TIPO='" . $tipo . "', USUA_SENHA='".$senhamd5."' where USUA_PRONT='" . $prontuario . "'");
         $sql2 = $db->exec("delete from participa where USUA_PRONT='".$prontuario."'");
         for ($i = 0; $i < count($grupos); $i++) {
-            $sql4 = "INSERT INTO participa (GRUP_CODIGO, USUA_PRONT) VALUES (".$grupos[$i].",'".$prontuario."')";
+            $sql4 = ("INSERT INTO participa (GRUP_CODIGO, USUA_PRONT) VALUES (".$grupos[$i].",'".$prontuario."')");
           //  echo $sql4 . "<br>";
             $sql3 = $db->exec($sql4);
-            var_dump($sql3);
+            //var_dump($sql3);
            // die();
         }
         if($sql && $sql2 and $sql3){
@@ -186,12 +186,14 @@ class Conexao {
             header("Location:cadastrousuario.php");
         }else{
             $db->rollBack();
+            //var_dump($sql);
+            //header("Location:cadastrousuario.php");
         }
     }
     
     function grupoLogado(){
         $pdo=$this->abreConexao();
-        $sql = ("select * from grupo where GRUP_CODIGO in(select GRUP_CODIGO from participa where USUA_PRONT=:prontuario)");
+        $sql = ("select grupo.GRUP_NOME from grupo,participa where ((participa.USUA_PRONT=:prontuario) and (participa.GRUP_CODIGO=grupo.GRUP_CODIGO)) limit 4");
         $stmt= $pdo->prepare($sql);
         $stmt->bindValue(":prontuario", $_SESSION["USUA_PRONT"]);
         $stmt->execute();

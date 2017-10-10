@@ -3,8 +3,6 @@
     include 'bancoDados.php';
     $objeto = new Conexao();
     $stmt = $objeto->grupoLogado();
-    $grupo = $stmt->fetchAll();
-    //var_dump($grupo);
     if(!isset($_SESSION["USUA_PRONT"]))
     {
         header("location:index.php");
@@ -53,15 +51,18 @@
             <div class="container" style="height:50%; width:100%;">
                 <table class="table-responsive table-hover table-bordered" style="height:50%; width:100%;">
                     <tr>
-                      <th>Grupos</th>
-                      <th>Nofiticações</th> <!-- ÚLTIMO USUÁRIO ONLINE E ÚLTIMAS MENSAGENS RECEBIDAS -->
+                      <th class="text-center">Grupos</th>
+                      <th class="text-center">Nofiticações</th> <!-- ÚLTIMO USUÁRIO ONLINE E ÚLTIMAS MENSAGENS RECEBIDAS -->
                     </tr>
-                      <?php for($i=0;$i<count($stmt);$i++){ ?>
+                      <?php if($stmt->rowCount() > 0){ 
+                                while($grupo = $stmt->fetch(PDO::FETCH_OBJ)){
+                          ?>
                     <tr>
-                        <td><?=$grupo[$i]; ?></td>
-                        <td> luan </td>
+                        <td class="text-center" style="width: 50%;"><?php echo $grupo->GRUP_NOME; ?></td>
+                        <td class="text-center" style="width: 50%;"> VAI TER MENSAGEM SIM </td>
                     </tr>
-                      <?php } ?>
+                      <?php     }
+                            } ?>
                 </table>
             </div>
         </div>
