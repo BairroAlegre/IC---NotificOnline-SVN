@@ -1,5 +1,5 @@
 <?php
-
+// SÉRGIO
 session_start();
 
 class Conexao {
