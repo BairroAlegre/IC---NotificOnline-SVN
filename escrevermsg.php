@@ -5,6 +5,11 @@
         header("location:index.php");
         return;
     }
+    
+    include 'bancodados.php';
+    $objeto = new Conexao();
+    $stmt = $objeto->codigoGrupo($_SESSION['USUA_PRONT']);
+    $stmt2 = $objeto->prontuarioPe($_SESSION['USUA_PRONT']);
     ?>
 <html>
     <head>
@@ -45,16 +50,53 @@
 
 
         <div class="well pull-left" style="height:100%; width:100%;">
-            <div class="container pull-left" style="height:10%;width:100%;">
-                <label class=" control-label col-sm-4" for="email">Enviar:</label>
-                <input type="email" class=" form-control" id="email" placeholder="Enviar para">
-            </div>
-            <div class="container pull-left" style="height:85%;width:100%;">
-               <textarea name="editor1"></textarea>
-                <script>
-                    CKEDITOR.replace( 'editor1' );
-                </script>
-            </div>
+            <form class="form-horizontal" action="enviarMensagem.php" method="post">
+                    <label class=" control-label">Enviar para pessoa específica ou grupo:</label>
+                    <select name='pessoa'>
+                        <option value='GRUPO'>Grupo</option>
+                        <option value='PE'>Pessoa Específica</option>
+                    </select>
+                    <br>
+                    <?php 
+                    if($_POST['pessoa'] == 'GRUPO'){
+                    ?>
+                        <label class='control-label'> Selecione o grupo que deseja mandar a mensagem:</label>
+                            <select name='grupos'>
+                                <?php 
+                                    for($i = 0; $i < count($stmt); $i++){
+                                ?>
+                                         <option value='<?= $stmt[$i][0]?>'><?=$stmt[$i][1]?></option>
+                                <?php
+                                    } 
+                                ?>
+                            </select>
+                    <?php
+                    }else if($_POST['pessoa'] == 'PE'){
+                    ?>
+                        <label class="control-label"> Selecione a pessoa que deseja mandar a mensagem:</label>
+                           <select name="pessoas">
+                               <?php
+                                   for($i = 0; $i < count($stmt2); $i++){
+                                ?>
+                                    <option value="<?= $stmt2[$i][0]?>"><?=$stmt2[$i][1]?></option>
+                                <?php
+                                   }
+                                ?>
+                           </select>
+                    <?php
+                    }
+                    ?>
+                <div class="container pull-left" style="height:85%;width:100%;">
+                   <textarea name="mensagem"></textarea>
+                    <script>
+                        CKEDITOR.replace( 'mensagem' );
+                    </script>
+                    <br>
+                    <button type="button" class="btn btn-default">
+                        Enviar
+                    </button>
+                </div>
+            </form>
             
         </div>
     </body>

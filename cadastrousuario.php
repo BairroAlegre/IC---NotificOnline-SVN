@@ -119,6 +119,7 @@ if (!isset($_SESSION["USUA_PRONT"]) or $_SESSION["USUA_TIPO"] != "ADM") {
                                 <td><?= $turm = $resulta->USUA_TURMA; ?></td>
                                 <td><?= $nom = $resulta->USUA_NOME; ?></td>
                                 <td><?php $ativo = $resulta->USUA_ATIVO;
+                                    $senha = $resulta->USUA_SENHA;
                                     if ($resulta->USUA_ATIVO == 1) {
                                         echo 'Ativo';
                                     } else {
@@ -152,7 +153,7 @@ if (!isset($_SESSION["USUA_PRONT"]) or $_SESSION["USUA_TIPO"] != "ADM") {
                                                         <label>Prontuário:</label>
                                                         <input type="text" class="form-control" name="prontuario2" value="<?= $login; ?>" readonly>
                                                         <label>Senha:</label>
-                                                        <input type="password" class="form-control" name="senha2">
+                                                        <input type="password" class="form-control" name="senha2" value="<?= $senha; ?>" >
                                                         <label>Turma:</label>
                                                         <input type="text" class="form-control" name="turma2" value="<?= $turm; ?>">
                                                         <label>Grupo:</label>

@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 class Conexao {
@@ -127,14 +128,14 @@ class Conexao {
 
     function usuarioConsulta($prontuario) {
         $pdo = $this->abreConexao();
-        $sql = "select * from usuario where USUA_PRONT=('".$prontuario."')";
+        $sql = "select * from usuario where USUA_PRONT=('" . $prontuario . "')";
         $stmt = $pdo->prepare($sql);
-      //  $stmt->bindValue(":prontuario", $prontuario, PDO::PARAM_STR);
+        //  $stmt->bindValue(":prontuario", $prontuario, PDO::PARAM_STR);
         $stmt->execute();
         return($stmt);
     }
-    
-    function contagemGrupos($SERGIO){
+
+    function contagemGrupos($SERGIO) {
         $pdo = $this->abreConexao();
         $sql = "select GRUP_NOME from usuario, grupo, participa where :prontuario=participa.USUA_PRONT and participa.GRUP_CODIGO=grupo.GRUP_CODIGO";
         $stmt = $pdo->prepare($sql);
@@ -142,7 +143,7 @@ class Conexao {
         $stmt->execute();
         return($stmt);
     }
-    
+
     function grupoAltera($prontuario) {
         $pdo = $this->abreConexao();
         $sql = "select USUA_NOME,GRUP_NOME from usuario,grupo,participa where usuario.USUA_PRONT=:prontuario and usuario.USUA_PRONT=participa.USUA_PRONT and grupo.GRUP_CODIGO=participa.GRUP_CODIGO;";
@@ -151,62 +152,95 @@ class Conexao {
         $stmt->execute();
         return($stmt);
     }
-    
-    function grupoConsultaporUsuario($prontuario){
-        $pdo= $this->abreConexao();
-        $sql="select * from participa where usua_pront=:prontuario";
-        $stmt3= $pdo->prepare($sql);
+
+    function grupoConsultaporUsuario($prontuario) {
+        $pdo = $this->abreConexao();
+        $sql = "select * from participa where usua_pront=:prontuario";
+        $stmt3 = $pdo->prepare($sql);
         $stmt3->bindValue(":prontuario", $prontuario);
         $stmt3->execute();
         return($stmt3);
     }
-    
-    function alteraUsuario($grupos){
+
+    function alteraUsuario($grupos) {
         $pdo = $this->abreConexao();
-        $nome=$_POST['nomecompleto2'];
-        $prontuario=$_POST['prontuario2'];
-        $turma=$_POST['turma2'];
-        $tipo=$_POST['tipo3'];
-        $senha=$_POST['senha2'];
-        $senhamd5=md5($senha);
+        $nome = $_POST['nomecompleto2'];
+        $prontuario = $_POST['prontuario2'];
+        $turma = $_POST['turma2'];
+        $tipo = $_POST['tipo3'];
+        if(isset($_POST['senha2'])){
+            $senha = $_POST['senha2'];
+            $senhamd5 = md5($senha);
+        }else{
+            $senhamd5 = $_POST['senha2'];
+        }
         //var_dump($nome,$prontuario,$turma,$tipo, $grupos);
-        $db=$pdo;
+        $db = $pdo;
         $db->beginTransaction();
-        $sql = $db->exec("update usuario set USUA_NOME='" . $nome . "', USUA_TURMA='" . $turma . "', USUA_TIPO='" . $tipo . "', USUA_SENHA='".$senhamd5."' where USUA_PRONT='" . $prontuario . "'");
-        $sql2 = $db->exec("delete from participa where USUA_PRONT='".$prontuario."'");
+        $sql = $db->exec("update usuario set USUA_NOME='" . $nome . "', USUA_TURMA='" . $turma . "', USUA_TIPO='" . $tipo . "', USUA_SENHA='" . $senhamd5 . "' where USUA_PRONT='" . $prontuario . "'");
+        $sql2 = $db->exec("delete from participa where USUA_PRONT='" . $prontuario . "'");
         for ($i = 0; $i < count($grupos); $i++) {
-            $sql4 = ("INSERT INTO participa (GRUP_CODIGO, USUA_PRONT) VALUES (".$grupos[$i].",'".$prontuario."')");
-          //  echo $sql4 . "<br>";
+            $sql4 = ("INSERT INTO participa (GRUP_CODIGO, USUA_PRONT) VALUES (" . $grupos[$i] . ",'" . $prontuario . "')");
+            //  echo $sql4 . "<br>";
             $sql3 = $db->exec($sql4);
             //var_dump($sql3);
-           // die();
+            // die();
         }
-        if($sql && $sql2 and $sql3){
+        if ($sql && $sql2 and $sql3) {
             $db->commit();
             header("Location:cadastrousuario.php");
-        }else{
+        } else {
             $db->rollBack();
             //var_dump($sql);
             //header("Location:cadastrousuario.php");
         }
     }
-    
-    function grupoLogado(){
-        $pdo=$this->abreConexao();
+
+    function grupoLogado() {
+        $pdo = $this->abreConexao();
         $sql = ("select grupo.GRUP_NOME from grupo,participa where ((participa.USUA_PRONT=:prontuario) and (participa.GRUP_CODIGO=grupo.GRUP_CODIGO)) limit 4");
-        $stmt= $pdo->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         $stmt->bindValue(":prontuario", $_SESSION["USUA_PRONT"]);
         $stmt->execute();
         return ($stmt);
     }
-}
-    
-    function participa($resposta, $gruposqueparticipa){
-        for($i=0;$i<count($gruposqueparticipa);$i++){
-            if($resposta == $gruposqueparticipa[$i]["GRUP_CODIGO"]){
-                return(true);
-            }
-        }
-        return(false);
-    }
 
+    function enviandoMensagem($usuario, $mensagem){
+        $pdo = $this->abreConexao();
+        $sql = ("insert into mensagem (MENS_TIPO, MENS_FORM, MENS_TEXTO, MENS_ESTADO, USUA_PRONT, MENS_DATA values()");
+    }
+    
+    function codigoGrupo($prontuario){
+        $pdo = $this->abreConexao();
+        $sql = "select participa.GRUP_CODIGO, grupo.GRUP_NOME from participa inner join grupo on participa.GRUP_CODIGO = grupo.GRUP_CODIGO where :prontuario = participa.USUA_PRONT";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(":prontuario", $prontuario);
+        $stmt->execute();
+        return $stmt;
+    }
+    
+    function prontuarioPe($prontuario){
+        $pdo = $this->abreConexao();
+        $sql = '';
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(":prontuario", $prontuario);
+        $stmt->execute();
+        return $stmt;
+    }
+}
+
+function participa($resposta, $gruposqueparticipa) {
+    for ($i = 0; $i < count($gruposqueparticipa); $i++) {
+        if ($resposta == $gruposqueparticipa[$i]["GRUP_CODIGO"]) {
+            return(true);
+        }
+    }
+    return(false);
+}
+/*
+function deadLine() {
+    if (!dead) {
+        die();
+    }
+}
+*/
